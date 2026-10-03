@@ -19,7 +19,7 @@ function worker(scope = 'https://example.github.io/golf_score/') {
     self: { registration: { scope }, addEventListener: (type, fn) => handlers.set(type, fn), skipWaiting: async () => {}, clients: { claim: async () => {} } },
     caches: {
       open: async () => cache,
-      keys: async () => [`tap-golf:${scope}:v4`, `tap-golf:${scope}:v5`, 'unrelated-cache', 'tap-golf:https://example.github.io/other/:v0'],
+      keys: async () => [`tap-golf:${scope}:v5`, `tap-golf:${scope}:v6`, 'unrelated-cache', 'tap-golf:https://example.github.io/other/:v0'],
       delete: async key => { deleted.push(key); },
     },
     fetch: async () => { if (!online) throw new Error('Offline'); return new Response('app content'); },
@@ -70,5 +70,5 @@ test('worker does not intercept other projects, external requests, or score subm
 test('worker updates remove only old caches belonging to this project', async () => {
   const w = worker();
   await w.lifecycle('activate');
-  assert.deepEqual(w.deleted, ['tap-golf:https://example.github.io/golf_score/:v4']);
+  assert.deepEqual(w.deleted, ['tap-golf:https://example.github.io/golf_score/:v5']);
 });
