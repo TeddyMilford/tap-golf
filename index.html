@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#154d35">
+  <meta name="description" content="A simple, private golf scorecard. Pick 9 or 18 holes, tap par and score, and keep playing.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Tap Golf — your simple scorecard</title>
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./model.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <main id="app"></main>
+    <button class="development-reset" id="full-reset" hidden>Full reset</button>
+    <p class="storage-note" id="storage-note" role="status" hidden></p>
+  </div>
+  <dialog id="scorecard" aria-labelledby="scorecard-title">
+    <div class="dialog-header"><h2 id="scorecard-title">Scorecard</h2><button class="icon-button" data-close="scorecard" aria-label="Close scorecard">×</button></div>
+    <div id="scorecard-content"></div>
+    <button class="quiet-button" data-action="new-round">New round</button>
+  </dialog>
+  <dialog id="new-round" aria-labelledby="new-round-title" aria-describedby="new-round-description">
+    <div class="dialog-header"><h2 id="new-round-title">Start a new round?</h2><button class="icon-button" data-close="new-round" aria-label="Keep this round">×</button></div>
+    <p id="new-round-description">This replaces the scorecard on this device.</p>
+    <div class="confirmation-actions"><button class="primary-button" id="confirm-new-round">Start new round</button><button class="secondary-button" data-close="new-round">Keep this round</button></div>
+  </dialog>
+  <noscript><p class="noscript">Turn on JavaScript to keep your golf score.</p></noscript>
+</body>
+</html>

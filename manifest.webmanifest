@@ -1,0 +1,11 @@
+{
+  "name": "Tap Golf",
+  "short_name": "Tap Golf",
+  "description": "A simple, single-player golf scorecard.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fafcf8",
+  "theme_color": "#154d35",
+  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
