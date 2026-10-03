@@ -72,7 +72,7 @@
     const showFrontNine = round.holeCount === 18 && front.played === 9 && i >= 9;
     const parButtons = G.PAR_VALUES.map(n => `<button class="number-button" data-par="${n}" aria-label="Par ${n}" aria-pressed="${hole.par === n}">${n}</button>`).join('');
     const digitButton = n => `<button class="number-button" data-digit="${n}" aria-label="${twoDigitScore ? 'Digit' : 'Score'} ${n}" ${n === 0 && !scoreDigits ? 'disabled title="Use 10+ to enter a two-digit score"' : ''}>${n}</button>`;
-    const numpad = [7, 8, 9, 4, 5, 6, 1, 2, 3].map(digitButton).join('') +
+    const numpad = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(digitButton).join('') +
       `<button class="number-button keypad-option" data-action="score-mode" aria-label="${twoDigitScore ? 'Use single-digit scores' : 'Enter a score of 10 or more'}" aria-pressed="${twoDigitScore}">${twoDigitScore ? '1–9' : '10+'}</button>` + digitButton(0) +
       (twoDigitScore ? '<button class="number-button keypad-option" data-action="backspace" aria-label="Clear score digit">⌫</button>' : '<span aria-hidden="true"></span>');
     app.innerHTML = `<section class="hole-view${showFrontNine ? ' has-front-nine' : ''}" aria-label="Hole ${i + 1}">

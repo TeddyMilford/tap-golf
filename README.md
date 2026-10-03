@@ -6,7 +6,7 @@ A simple, single-player golf scorecard for GitHub Pages. No dependencies, accoun
 
 1. Choose **9 holes** or **18 holes**. The round starts on hole 1.
 2. **Par?** shows 3, 4, 5, 6 in a large two-by-two grid. Tap once.
-3. **Score?** shows a ten-key numpad: 7–9, 4–6, 1–3, then 0. Tap a single-digit score. The hole is saved and the next hole opens automatically.
+3. **Score?** shows a phone-style numpad: 1–3, 4–6, 7–9, then 0. Tap a single-digit score. The hole is saved and the next hole opens automatically.
 4. See your total after 9 holes. An 18-hole round moves straight to hole 10 and quietly displays your front-nine total. At the end, see front-nine, back-nine, and overall totals.
 
 Two taps per hole for scores 1–9. No save button, number-picker popup, scrolling, or halfway confirmation. For scores 10–99, tap the small **10+** key, then the two digits; the second digit saves and advances automatically. **⌫** clears the first digit. Zero alone is disabled because a played hole requires at least one stroke.
