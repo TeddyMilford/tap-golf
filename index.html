@@ -24,6 +24,11 @@
     <div id="scorecard-content"></div>
     <button class="quiet-button" data-action="new-round">New round</button>
   </dialog>
+  <dialog id="start-hole" aria-labelledby="start-hole-title" aria-describedby="start-hole-description">
+    <div class="dialog-header"><h2 id="start-hole-title">Shotgun start</h2><button class="icon-button" data-close="start-hole" aria-label="Close">×</button></div>
+    <p id="start-hole-description">Pick your starting hole. Play continues in order and wraps around to finish on the hole before.</p>
+    <div class="hole-choices" id="start-hole-content"></div>
+  </dialog>
   <dialog id="new-round" aria-labelledby="new-round-title" aria-describedby="new-round-description">
     <div class="dialog-header"><h2 id="new-round-title">Start a new round?</h2><button class="icon-button" data-close="new-round" aria-label="Keep this round">×</button></div>
     <p id="new-round-description">This replaces the scorecard on this device.</p>

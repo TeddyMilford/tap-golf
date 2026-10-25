@@ -12,7 +12,8 @@
   document.getElementById('full-reset').hidden = !development;
   document.body.classList.toggle('development', development);
   let round = null;
-  let editingIndex = null;
+  let viewIndex = null; // The hole on screen; null shows the start or result view.
+  let startHole = 0; // Chosen on the start view before the round exists.
   let step = 'par';
   let twoDigitScore = false;
   let scoreDigits = '';
@@ -32,11 +33,18 @@
     }
   }
 
-  function resumeStep() {
-    const i = round ? G.currentHole(round) : -1;
-    step = i >= 0 && round.holes[i].par !== null ? 'score' : 'par';
+  // Show hole i (or the result view for null), resuming on Score? if par was chosen but not scored.
+  function showHole(i) {
+    viewIndex = i;
+    const hole = i === null ? null : round.holes[i];
+    step = hole && !hole.done && hole.par !== null ? 'score' : 'par';
     twoDigitScore = false;
     scoreDigits = '';
+  }
+
+  function resumeRound() {
+    const i = round ? G.currentHole(round) : -1;
+    showHole(i >= 0 ? i : null);
   }
 
   try {
@@ -46,18 +54,18 @@
   } catch {
     warning('Saving is unavailable. Keep this page open.');
   }
-  resumeStep();
+  resumeRound();
 
-  const index = () => editingIndex ?? G.currentHole(round);
   const totalText = total => total.played ? G.relative(total.difference) : '—';
 
   function render(focusHeading = false) {
     if (!round) {
       app.innerHTML = `<section class="start-view" aria-label="Choose a round">
-        <button class="round-option" data-start="9">9 holes</button>
+        <button class="round-option" data-start="9" ${startHole >= 9 ? 'disabled' : ''}>9 holes</button>
         <button class="round-option" data-start="18">18 holes</button>
+        <button class="quiet-button shotgun-button" data-action="pick-start" aria-label="Shotgun start. Starting hole ${startHole + 1}. Change starting hole.">${startHole === 0 ? 'Shotgun start?' : `Shotgun start: hole ${startHole + 1}`}</button>
       </section>`;
-    } else if (editingIndex !== null || G.phase(round) === 'play') {
+    } else if (viewIndex !== null) {
       renderHole();
     } else {
       renderResult();
@@ -66,8 +74,12 @@
   }
 
   function renderHole() {
-    const i = index();
+    const i = viewIndex;
     const hole = round.holes[i];
+    const current = G.currentHole(round);
+    const previous = G.adjacentHole(round, i, -1);
+    const next = G.adjacentHole(round, i, 1);
+    const arrow = (target, symbol, label) => `<button class="arrow-button" data-go="${target ?? ''}" aria-label="${label}${target === null ? '' : ` (hole ${target + 1})`}" ${target === null ? 'disabled' : ''}>${symbol}</button>`;
     const front = G.totals(round, 0, 9);
     const showFrontNine = round.holeCount === 18 && front.played === 9 && i >= 9;
     const parButtons = G.PAR_VALUES.map(n => `<button class="number-button" data-par="${n}" aria-label="Par ${n}" aria-pressed="${hole.par === n}">${n}</button>`).join('');
@@ -76,12 +88,12 @@
       `<button class="number-button keypad-option" data-action="score-mode" aria-label="${twoDigitScore ? 'Use single-digit scores' : 'Enter a score of 10 or more'}" aria-pressed="${twoDigitScore}">${twoDigitScore ? '1–9' : '10+'}</button>` + digitButton(0) +
       (twoDigitScore ? '<button class="number-button keypad-option" data-action="backspace" aria-label="Clear score digit">⌫</button>' : '<span aria-hidden="true"></span>');
     app.innerHTML = `<section class="hole-view${showFrontNine ? ' has-front-nine' : ''}" aria-label="Hole ${i + 1}">
-      <div class="hole-bar"><button class="hole-button" data-action="scorecard" aria-label="${editingIndex !== null ? 'Editing ' : ''}Hole ${i + 1} of ${round.holeCount}. Open scorecard to edit a hole."><span class="hole-label">${editingIndex !== null ? 'Edit hole' : 'Hole'}</span><strong>${i + 1}</strong><span class="hole-count">of ${round.holeCount}</span></button></div>
+      <div class="hole-bar">${arrow(previous, '‹', 'Previous hole')}<button class="hole-button" data-action="scorecard" aria-label="${hole.done ? 'Editing ' : ''}Hole ${i + 1} of ${round.holeCount}. Open scorecard."><span class="hole-label">${hole.done ? 'Edit hole' : 'Hole'}</span><strong>${i + 1}</strong><span class="hole-count">of ${round.holeCount}</span></button>${arrow(next, '›', 'Next hole')}</div>
       <div class="entry-controls">
         <h1 class="prompt" tabindex="-1">${step === 'par' ? 'Par?' : scoreDigits ? `${scoreDigits}_` : 'Score?'}</h1>
-        ${showFrontNine ? `<p class="front-total">Front 9: ${front.score} (${G.relative(front.difference)})</p>` : ''}
+        ${hole.done && step === 'par' ? `<p class="front-total">Scored ${hole.score} on par ${hole.par} (${G.relative(hole.score - hole.par)})</p>` : showFrontNine ? `<p class="front-total">Front 9: ${front.score} (${G.relative(front.difference)})</p>` : ''}
         <div class="choice-grid ${step === 'score' ? 'score-choices' : ''}" aria-label="${step === 'score' ? 'Score numpad' : 'Choose par'}">${step === 'par' ? parButtons : numpad}</div>
-        <div class="step-footer">${step === 'score' ? `<button class="quiet-button" data-action="change-par" aria-label="Change par ${hole.par}">Par ${hole.par}</button>` : editingIndex !== null ? '<button class="quiet-button" data-action="return">Back to round</button>' : ''}</div>
+        <div class="step-footer">${step === 'score' ? `<button class="quiet-button" data-action="change-par" aria-label="Change par ${hole.par}">Par ${hole.par}</button>` : i !== current ? `<button class="quiet-button" data-action="return">${current === -1 ? 'Back to results' : `Back to hole ${current + 1}`}</button>` : ''}</div>
       </div>
     </section>`;
   }
@@ -103,8 +115,7 @@
       const total = G.totals(round, start, end);
       return `<tr class="subtotal"><td>${label}</td><td>${total.played ? total.par : '—'}</td><td>${total.played ? total.score : '—'}</td><td>${totalText(total)}</td></tr>`;
     };
-    const next = G.currentHole(round);
-    document.getElementById('scorecard-content').innerHTML = `<table class="score-table"><thead><tr><th scope="col">Hole</th><th scope="col">Par</th><th scope="col">Score</th><th scope="col">+/−</th></tr></thead><tbody>${round.holes.map((hole, i) => `<tr><td><button class="hole-edit" data-edit="${i}" aria-label="${hole.done ? 'Edit' : 'Go to'} hole ${i + 1}" ${hole.done || i === next ? '' : 'disabled'}>${i + 1}</button></td><td>${hole.done ? hole.par : '—'}</td><td>${hole.done ? hole.score : '—'}</td><td>${hole.done ? G.relative(hole.score - hole.par) : '—'}</td></tr>${i === 8 ? subtotal('Front 9', 0, 9) : i === 17 ? subtotal('Back 9', 9, 18) : ''}`).join('')}${round.holeCount === 18 ? subtotal('Total', 0, 18) : ''}</tbody></table>`;
+    document.getElementById('scorecard-content').innerHTML = `<table class="score-table"><thead><tr><th scope="col">Hole</th><th scope="col">Par</th><th scope="col">Score</th><th scope="col">+/−</th></tr></thead><tbody>${round.holes.map((hole, i) => `<tr><td><button class="hole-edit" data-edit="${i}" aria-label="${hole.done ? 'Edit' : 'Go to'} hole ${i + 1}"${i === round.start && round.start !== 0 ? ' title="Starting hole"' : ''}>${i + 1}${i === round.start && round.start !== 0 ? '<span class="start-mark" aria-hidden="true">●</span>' : ''}</button></td><td>${hole.done ? hole.par : '—'}</td><td>${hole.done ? hole.score : '—'}</td><td>${hole.done ? G.relative(hole.score - hole.par) : '—'}</td></tr>${i === 8 ? subtotal('Front 9', 0, 9) : i === 17 ? subtotal('Back 9', 9, 18) : ''}`).join('')}${round.holeCount === 18 ? subtotal('Total', 0, 18) : ''}</tbody></table>`;
     scorecard.showModal();
   }
 
@@ -114,21 +125,21 @@
     if (button.id === 'full-reset') {
       document.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
       round = null;
-      editingIndex = null;
-      resumeStep();
+      startHole = 0;
+      resumeRound();
       persist();
       render();
       app.querySelector('button')?.focus();
     } else if (button.dataset.close) {
       document.getElementById(button.dataset.close).close();
     } else if (button.dataset.start) {
-      round = G.createRound(Number(button.dataset.start));
-      editingIndex = null;
-      step = 'par';
+      round = G.createRound(Number(button.dataset.start), startHole);
+      startHole = 0;
+      resumeRound();
       persist();
       render(true);
     } else if (button.dataset.par && step === 'par') {
-      G.setValue(round, index(), 'par', Number(button.dataset.par));
+      G.setValue(round, viewIndex, 'par', Number(button.dataset.par));
       step = 'score';
       twoDigitScore = false;
       scoreDigits = '';
@@ -142,9 +153,9 @@
         render(true);
         return;
       }
-      G.recordScore(round, index(), Number(scoreDigits + digit));
-      editingIndex = null;
-      resumeStep();
+      G.recordScore(round, viewIndex, Number(scoreDigits + digit));
+      const following = G.nextHole(round, viewIndex);
+      showHole(following >= 0 ? following : null);
       persist();
       render(true);
     } else if (button.dataset.action === 'score-mode' && step === 'score') {
@@ -155,23 +166,26 @@
       scoreDigits = '';
       render(true);
     } else if (button.dataset.edit !== undefined) {
-      const target = Number(button.dataset.edit);
-      if (round.holes[target].done) {
-        editingIndex = target;
-        step = 'par';
-        twoDigitScore = false;
-        scoreDigits = '';
-      } else if (target === G.currentHole(round)) {
-        editingIndex = null;
-        resumeStep();
-      } else return;
+      showHole(Number(button.dataset.edit));
       scorecard.close();
       render(true);
+    } else if (button.dataset.go) {
+      showHole(Number(button.dataset.go));
+      render(true);
+    } else if (button.dataset.startHole) {
+      startHole = Number(button.dataset.startHole);
+      document.getElementById('start-hole').close();
+      render();
+      app.querySelector('[data-action="pick-start"]')?.focus();
+    } else if (button.dataset.action === 'pick-start') {
+      document.getElementById('start-hole-content').innerHTML = Array.from({ length: 18 }, (_, i) =>
+        `<button class="hole-choice" data-start-hole="${i}" aria-pressed="${i === startHole}">${i + 1}</button>`).join('');
+      document.getElementById('start-hole').showModal();
     } else if (button.id === 'confirm-new-round') {
       document.getElementById('new-round').close();
       round = null;
-      editingIndex = null;
-      step = 'par';
+      startHole = 0;
+      resumeRound();
       persist();
       render();
       app.querySelector('button')?.focus();
@@ -179,8 +193,7 @@
       step = 'par';
       render(true);
     } else if (button.dataset.action === 'return') {
-      editingIndex = null;
-      resumeStep();
+      resumeRound();
       render(true);
     } else if (button.dataset.action === 'scorecard') {
       openScorecard();
@@ -190,6 +203,18 @@
     }
   });
 
+  // Left/right arrow keys move between holes, matching the on-screen arrows.
+  document.addEventListener('keydown', event => {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || document.querySelector('dialog[open]')) return;
+    const direction = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
+    if (!direction || !round || viewIndex === null) return;
+    const target = G.adjacentHole(round, viewIndex, direction);
+    if (target === null) return;
+    event.preventDefault();
+    showHole(target);
+    render(true);
+  });
+
   window.addEventListener('storage', event => {
     if (event.key !== storageKey && event.key !== null) return;
     try {
@@ -197,8 +222,7 @@
       const updated = G.readRound(saved);
       if (saved && !updated) return;
       round = updated;
-      editingIndex = null;
-      resumeStep();
+      resumeRound();
       document.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
       storageNote.hidden = true;
       render(true);

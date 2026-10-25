@@ -2,7 +2,7 @@
 
 const SCOPE = self.registration.scope;
 const PREFIX = `tap-golf:${SCOPE}:`;
-const CACHE = `${PREFIX}v6`;
+const CACHE = `${PREFIX}v7`;
 const FILES = ['./', './index.html', './styles.css', './model.js', './app.js', './icon.svg', './manifest.webmanifest'];
 const URLS = FILES.map(file => new URL(file, SCOPE).href);
 

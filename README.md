@@ -4,14 +4,14 @@ A simple, single-player golf scorecard for GitHub Pages. No dependencies, accoun
 
 ## Use it
 
-1. Choose **9 holes** or **18 holes**. The round starts on hole 1.
+1. Choose **9 holes** or **18 holes**. The round starts on hole 1. For a shotgun start, tap the red **Shotgun start?** first and pick your starting hole; play continues in order and wraps around (start on 4: 4 → 18, then 1 → 3).
 2. **Par?** shows 3, 4, 5, 6 in a large two-by-two grid. Tap once.
 3. **Score?** shows a phone-style numpad: 1–3, 4–6, 7–9, then 0. Tap a single-digit score. The hole is saved and the next hole opens automatically.
 4. See your total after 9 holes. An 18-hole round moves straight to hole 10 and quietly displays your front-nine total. At the end, see front-nine, back-nine, and overall totals.
 
 Two taps per hole for scores 1–9. No save button, number-picker popup, scrolling, or halfway confirmation. For scores 10–99, tap the small **10+** key, then the two digits; the second digit saves and advances automatically. **⌫** clears the first digit. Zero alone is disabled because a played hole requires at least one stroke.
 
-The current hole fills the top of the screen with a giant number, with **Hole** above and **of 18** below. The par buttons and score numpad sit toward the bottom for easier thumb reach, with room for the phone's safe area. Tap the hole heading to open the scorecard, then tap a played hole to edit it. Choose its par and score again; the app returns to your current hole. On the score screen, the small **Par number** below the grid returns to the par screen. **New round** lives inside the scorecard and requires confirmation. The app keeps one round at a time.
+The current hole fills the top of the screen with a giant number, with **Hole** above and **of 18** below. The par buttons and score numpad sit toward the bottom for easier thumb reach, with room for the phone's safe area. The **‹** and **›** arrows beside the hole number (or the left/right arrow keys) move back and forward through holes in play order. A played hole shows what you scored; choose its par and score again to change it. You can also skip ahead and fill a hole in later. After any score, the app moves to the next unplayed hole, and **Back to hole N** returns to it. Tap the hole heading to open the scorecard and jump to any hole. On the score screen, the small **Par number** below the grid returns to the par screen. **New round** lives inside the scorecard and requires confirmation. The app keeps one round at a time.
 
 ## Preview locally
 

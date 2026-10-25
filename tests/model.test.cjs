@@ -16,7 +16,8 @@ test('round opens on hole 1, rejects unsupported lengths, and requires both fiel
   assert.throws(() => G.finishHole(round, 0));
   G.setValue(round, 0, 'par', 3);
   assert.throws(() => G.finishHole(round, 0));
-  assert.throws(() => G.setValue(round, 1, 'score', 4));
+  assert.throws(() => G.setValue(round, 9, 'score', 4));
+  assert.throws(() => G.setValue(round, -1, 'par', 4));
   assert.equal(G.totals(round).played, 0);
 });
 
@@ -79,7 +80,9 @@ test('invalid or tampered saved data is rejected', () => {
     r => { r.holes.pop(); },
     r => { r.holes[0].score = '<script>alert(1)</script>'; },
     r => { r.holes[0].done = true; },
-    r => { r.holes[1] = { par: 4, score: 5, done: true }; },
+    r => { r.start = 9; },
+    r => { r.start = 1.5; },
+    r => { r.start = '3'; },
     r => { r.holes[0].done = 'yes'; },
     r => { r.holes[0].par = 100; },
   ];
@@ -115,4 +118,57 @@ test('old halfway saves resume at hole ten without needing confirmation', () => 
   assert.equal(G.currentHole(restored), 9);
   assert.equal(G.phase(restored), 'play');
   assert.equal(G.totals(restored, 0, 9).score, 45);
+});
+
+test('shotgun start plays from the starting hole and wraps around to finish', () => {
+  const round = G.createRound(18, 3);
+  assert.throws(() => G.createRound(9, 9));
+  assert.throws(() => G.createRound(18, -1));
+  assert.deepEqual(G.playOrder(round).slice(0, 3), [3, 4, 5]);
+  assert.deepEqual(G.playOrder(round).slice(-3), [0, 1, 2]);
+  const played = [];
+  while (G.phase(round) === 'play') {
+    const i = G.currentHole(round);
+    played.push(i);
+    G.setValue(round, i, 'par', 4);
+    G.recordScore(round, i, 4);
+  }
+  assert.deepEqual(played, G.playOrder(round));
+  assert.equal(played.at(-1), 2);
+  assert.deepEqual(G.totals(round), { played: 18, par: 72, score: 72, difference: 0 });
+});
+
+test('start hole survives reload, and older saves without one start on hole 1', () => {
+  const round = G.createRound(9, 6);
+  assert.equal(G.readRound(JSON.stringify(round)).start, 6);
+  const old = G.createRound(9);
+  delete old.start;
+  const restored = G.readRound(JSON.stringify(old));
+  assert.equal(restored.start, 0);
+  assert.equal(G.currentHole(restored), 0);
+});
+
+test('holes can be visited and scored out of order', () => {
+  const round = G.createRound(9, 4);
+  assert.equal(G.adjacentHole(round, 4, -1), null);
+  assert.equal(G.adjacentHole(round, 4, 1), 5);
+  assert.equal(G.adjacentHole(round, 8, 1), 0);
+  assert.equal(G.adjacentHole(round, 3, 1), null);
+  assert.equal(G.adjacentHole(round, 0, -1), 8);
+  // Skip ahead to hole 7, leaving holes 5 and 6 blank.
+  G.setValue(round, 6, 'par', 3);
+  G.recordScore(round, 6, 2);
+  assert.equal(G.currentHole(round), 4);
+  assert.equal(G.nextHole(round, 6), 7);
+  assert.equal(G.readRound(JSON.stringify(round)).holes[6].done, true);
+  // Scoring an earlier hole moves to the next blank one, not past it.
+  G.setValue(round, 4, 'par', 4);
+  G.recordScore(round, 4, 4);
+  assert.equal(G.nextHole(round, 4), 5);
+  for (const i of [5, 7, 8, 0, 1, 2]) { G.setValue(round, i, 'par', 4); G.recordScore(round, i, 4); }
+  assert.equal(G.nextHole(round, 2), 3);
+  G.setValue(round, 3, 'par', 4);
+  G.recordScore(round, 3, 4);
+  assert.equal(G.nextHole(round, 3), -1);
+  assert.equal(G.phase(round), 'complete');
 });

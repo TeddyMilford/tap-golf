@@ -4,6 +4,7 @@
   --muted: #647269;
   --line: #dce5da;
   --pale: #edf3e8;
+  --red: #c0392b;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   color: var(--green);
@@ -23,8 +24,11 @@ h1, h2, p { margin: 0; }
 .hole-view.has-front-nine { --key-height: clamp(48px, calc((100dvh - 440px) / 4), 96px); }
 .development .hole-view { --key-height: clamp(48px, calc((100dvh - 500px) / 4), 96px); }
 .development .hole-view.has-front-nine { --key-height: clamp(48px, calc((100dvh - 540px) / 4), 96px); }
-.hole-bar { flex-shrink: 0; text-align: center; }
-.hole-button { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding: 4px 0; border: 0; background: transparent; color: var(--green); }
+.hole-bar { flex-shrink: 0; display: flex; align-items: center; text-align: center; }
+.arrow-button { flex-shrink: 0; width: 56px; min-height: 96px; padding: 0; border: 0; border-radius: 16px; background: transparent; color: var(--green); font-size: 56px; font-weight: 300; line-height: 1; }
+.arrow-button:active { background: var(--pale); }
+.arrow-button:disabled { opacity: .2; }
+.hole-button { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; padding: 4px 0; border: 0; background: transparent; color: var(--green); }
 .hole-button strong { font-size: clamp(112px, 22dvh, 188px); font-weight: 800; letter-spacing: -6px; line-height: .95; font-variant-numeric: tabular-nums; }
 .hole-label { font-size: 20px; font-weight: 650; line-height: 1.2; text-transform: uppercase; letter-spacing: 2px; }
 .hole-count { font-size: 18px; line-height: 1.2; color: var(--muted); }
@@ -46,6 +50,14 @@ h1, h2, p { margin: 0; }
 .start-view { display: flex; flex-direction: column; justify-content: center; flex: 1; gap: 16px; }
 .round-option { border: 0; border-radius: 16px; background: var(--green); color: white; min-height: 150px; font-size: 38px; font-weight: 700; }
 .round-option:active { background: #103c29; }
+.round-option:disabled { opacity: .35; }
+.start-view .quiet-button { align-self: center; font-size: 16px; }
+.shotgun-button { color: var(--red); font-weight: 650; }
+.hole-choices { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
+.hole-choice { min-height: 48px; padding: 0; border: 0; border-radius: 10px; background: var(--pale); color: var(--green); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hole-choice[aria-pressed="true"] { background: var(--green); color: white; }
+#start-hole-description { color: var(--muted); font-size: 15px; line-height: 1.5; }
+.start-mark { margin-left: 4px; font-size: 8px; vertical-align: middle; }
 .result-view { text-align: center; padding-top: 32px; }
 .result-view h1 { font-size: 28px; font-weight: 650; margin-bottom: 24px; }
 .result-number { font-size: 100px; font-weight: 750; letter-spacing: -4px; line-height: 1.15; font-variant-numeric: tabular-nums; }
