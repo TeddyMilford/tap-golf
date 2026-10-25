@@ -19,7 +19,7 @@ function worker(scope = 'https://example.github.io/golf_score/') {
     self: { registration: { scope }, addEventListener: (type, fn) => handlers.set(type, fn), skipWaiting: async () => {}, clients: { claim: async () => {} } },
     caches: {
       open: async () => cache,
-      keys: async () => [`tap-golf:${scope}:v6`, `tap-golf:${scope}:v7`, 'unrelated-cache', 'tap-golf:https://example.github.io/other/:v0'],
+      keys: async () => [`tap-golf:${scope}:v7`, `tap-golf:${scope}:v8`, 'unrelated-cache', 'tap-golf:https://example.github.io/other/:v0'],
       delete: async key => { deleted.push(key); },
     },
     fetch: async () => { if (!online) throw new Error('Offline'); return new Response('app content'); },
@@ -44,7 +44,7 @@ function worker(scope = 'https://example.github.io/golf_score/') {
 test('offline installation resolves all public assets under the GitHub Pages project', async () => {
   const w = worker();
   await w.lifecycle('install');
-  assert.equal(w.precached.length, 7);
+  assert.equal(w.precached.length, 8);
   assert.ok(w.precached.every(url => url.startsWith('https://example.github.io/golf_score/')));
   assert.ok(w.precached.includes('https://example.github.io/golf_score/index.html'));
 });
@@ -70,5 +70,5 @@ test('worker does not intercept other projects, external requests, or score subm
 test('worker updates remove only old caches belonging to this project', async () => {
   const w = worker();
   await w.lifecycle('activate');
-  assert.deepEqual(w.deleted, ['tap-golf:https://example.github.io/golf_score/:v6']);
+  assert.deepEqual(w.deleted, ['tap-golf:https://example.github.io/golf_score/:v7']);
 });

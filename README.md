@@ -36,7 +36,7 @@ npm run check
 2. In the repository's **Settings → Pages**, choose **GitHub Actions** as the source.
 3. Run the included **Deploy Tap Golf to GitHub Pages** workflow, or push a change to `main`.
 
-The workflow tests the scoring logic and publishes only the seven public app files and `.nojekyll`. All assets use relative paths, so both `https://USERNAME.github.io/REPOSITORY/` and a custom domain work. If your default branch is different, update `branches` in `.github/workflows/pages.yml`.
+The workflow tests the scoring logic and publishes only the eight public app files and `.nojekyll`. All assets use relative paths, so both `https://USERNAME.github.io/REPOSITORY/` and a custom domain work. If your default branch is different, update `branches` in `.github/workflows/pages.yml`.
 
 Alternatively, use **Deploy from a branch**, with the repository root as the source. No compilation is needed.
 
